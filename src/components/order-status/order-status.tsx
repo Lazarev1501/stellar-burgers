@@ -1,11 +1,11 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { OrderStatusProps } from './type';
 import { OrderStatusUI } from '@ui';
 
 const statusText: { [key: string]: string } = {
-  pending: 'Готовится',
-  done: 'Выполнен',
-  created: 'Создан'
+  '#E52B1A': 'Готовится',
+  '#00CCCC': 'Выполнен',
+  '#F2F2F3': 'Создан'
 };
 
 export const OrderStatus: FC<OrderStatusProps> = ({ status }) => {
@@ -21,5 +21,5 @@ export const OrderStatus: FC<OrderStatusProps> = ({ status }) => {
       textStyle = '#F2F2F3';
   }
 
-  return <OrderStatusUI textStyle={textStyle} text={statusText[status]} />;
+  return <OrderStatusUI textStyle={textStyle} text={statusText[textStyle]} />;
 };
