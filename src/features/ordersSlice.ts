@@ -6,10 +6,7 @@ import {
   orderBurgerApi
 } from '../utils/burger-api';
 
-export const getOrders = createAsyncThunk('orders/getAll', async () => {
-  const orders = await getOrdersApi();
-  return orders;
-});
+export const getOrders = createAsyncThunk('orders/getAll', getOrdersApi);
 
 export const getOrder = createAsyncThunk(
   'order/getOrderByNumber',
@@ -32,6 +29,8 @@ export interface IOrdersState {
   orderData: TOrder;
   orderRequest: boolean;
   orderModalData: TOrder | null;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const initialState: IOrdersState = {
@@ -46,7 +45,9 @@ const initialState: IOrdersState = {
     number: 0
   },
   orderRequest: false,
-  orderModalData: null
+  orderModalData: null,
+  isLoading: false,
+  error: null
 };
 
 const ordersSlice = createSlice({
@@ -61,25 +62,40 @@ const ordersSlice = createSlice({
     selectOrders: (state) => state.orders,
     selectOrderRequest: (state) => state.orderRequest,
     selectOrderModalData: (state) => state.orderModalData,
-    selectOrderData: (state) => state.orderData
+    selectOrderData: (state) => state.orderData,
+    selectIsLoading: (state) => state.isLoading,
+    selectOrdersError: (state) => state.error
   },
   extraReducers: (builder) => {
-    builder.addCase(getOrders.fulfilled, (state, action) => {
-      state.orders = action.payload;
-    });
-    builder.addCase(orderBurger.pending, (state) => {
-      state.orderRequest = true;
-    });
-    builder.addCase(orderBurger.rejected, (state) => {
-      state.orderRequest = false;
-    });
-    builder.addCase(orderBurger.fulfilled, (state, action) => {
-      state.orderRequest = false;
-      state.orderModalData = action.payload.order;
-    });
-    builder.addCase(getOrder.fulfilled, (state, action) => {
-      state.orderData = action.payload[0];
-    });
+    builder
+      // Обработка getOrders
+      .addCase(getOrders.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getOrders.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.orders = action.payload;
+      })
+      .addCase(getOrders.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Ошибка при загрузке заказов';
+      })
+      // Обработка orderBurger
+      .addCase(orderBurger.pending, (state) => {
+        state.orderRequest = true;
+      })
+      .addCase(orderBurger.rejected, (state) => {
+        state.orderRequest = false;
+      })
+      .addCase(orderBurger.fulfilled, (state, action) => {
+        state.orderRequest = false;
+        state.orderModalData = action.payload.order;
+      })
+      // Обработка getOrder
+      .addCase(getOrder.fulfilled, (state, action) => {
+        state.orderData = action.payload[0];
+      });
   }
 });
 
@@ -87,7 +103,9 @@ export const {
   selectOrders,
   selectOrderRequest,
   selectOrderModalData,
-  selectOrderData
+  selectOrderData,
+  selectIsLoading,
+  selectOrdersError
 } = ordersSlice.selectors;
 
 export const { closeModalAfterOrderingBurger } = ordersSlice.actions;

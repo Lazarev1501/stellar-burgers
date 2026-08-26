@@ -9,7 +9,6 @@ import { selectIngredients } from '../../features/ingredientsSlice';
 import { useParams } from 'react-router-dom';
 
 export const OrderInfo: FC = () => {
-  /** TODO: взять переменные orderData и ingredients из стора */
   const dispatch = useDispatch();
   const orderData = useSelector(selectOrderData);
   const ingredientsAll = useSelector(selectIngredients);
@@ -18,13 +17,13 @@ export const OrderInfo: FC = () => {
   useEffect(() => {
     if (!number) return;
     dispatch(getOrder(Number(number)));
-  }, []);
+  }, [number]);
 
-  const ingredients: TIngredient[] = ingredientsAll.filter((ingredient) =>
-    orderData.ingredients.includes(ingredient._id)
-  );
+  const ingredients: TIngredient[] =
+    ingredientsAll?.filter((ingredient) =>
+      orderData?.ingredients?.includes(ingredient._id)
+    ) || [];
 
-  /* Готовим данные для отображения */
   const orderInfo = useMemo(() => {
     if (!orderData || !ingredients.length) return null;
 

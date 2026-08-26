@@ -1,8 +1,8 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
 import { useNavigate } from 'react-router-dom';
-
-import { registerUserApi, TRegisterData } from '../../utils/burger-api';
+import { useDispatch } from '../../services/store';
+import { registerUser } from '../../features/userSlice';
 
 export const Register: FC = () => {
   const [userName, setUserName] = useState('');
@@ -11,22 +11,25 @@ export const Register: FC = () => {
   const [error, setError] = useState<Error | null>(null);
 
   const navigate = useNavigate();
-
-  const registerData: TRegisterData = {
-    email: email,
-    name: userName,
-    password: password
-  };
+  const dispatch = useDispatch();
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
 
     setError(null);
-    registerUserApi(registerData)
-      .then(() => {
-        navigate('/login', { replace: true });
+
+    dispatch(
+      registerUser({
+        email: email,
+        name: userName,
+        password: password
       })
-      .catch((err) => setError(err));
+    )
+      .unwrap()
+      .then(() => {})
+      .catch((err) => {
+        setError(err);
+      });
   };
 
   return (

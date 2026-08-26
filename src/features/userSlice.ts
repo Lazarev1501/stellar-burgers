@@ -5,7 +5,8 @@ import {
   getUserApi,
   TRegisterData,
   logoutApi,
-  updateUserApi
+  updateUserApi,
+  registerUserApi
 } from '../utils/burger-api';
 import { getCookie, setCookie, deleteCookie } from '../utils/cookie';
 
@@ -13,6 +14,16 @@ export const loginUser = createAsyncThunk(
   'user/loginUser',
   async ({ email, password }: Omit<TRegisterData, 'name'>) => {
     const data = await loginUserApi({ email, password });
+    setCookie('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    return data.user;
+  }
+);
+
+export const registerUser = createAsyncThunk(
+  'user/registerUser',
+  async ({ email, password, name }: TRegisterData) => {
+    const data = await registerUserApi({ email, password, name });
     setCookie('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
     return data.user;
@@ -30,18 +41,22 @@ export const updateUser = createAsyncThunk(
   }
 );
 
+// Исправленный checkUserAuth с использованием return
 export const checkUserAuth = createAsyncThunk(
   'user/checkUser',
-  async (_, { dispatch }) => {
+  async (_, { rejectWithValue }) => {
     if (getCookie('accessToken')) {
-      getUserApi()
-        .then((res) => dispatch(setUser(res.user)))
-        .finally(() => {
-          dispatch(authChecked());
-        });
-    } else {
-      dispatch(authChecked());
+      try {
+        const res = await getUserApi();
+        return res.user; // Возвращаем пользователя
+      } catch (error) {
+        console.error('Ошибка при проверке авторизации:', error);
+        deleteCookie('accessToken');
+        localStorage.removeItem('refreshToken');
+        return rejectWithValue(error);
+      }
     }
+    return null; // Нет токена — возвращаем null
   }
 );
 
@@ -67,9 +82,7 @@ export const userSlice = createSlice({
   name: 'user',
   initialState,
   reducers: {
-    authChecked: (state) => {
-      state.isAuthChecked = true;
-    },
+    // используем extraReducers
     setUser: (state, action: PayloadAction<TUser | null>) => {
       state.data = action.payload;
     }
@@ -81,6 +94,7 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Логин
       .addCase(loginUser.pending, (state) => {
         state.error = '';
       })
@@ -93,16 +107,47 @@ export const userSlice = createSlice({
         state.data = action.payload;
         state.error = '';
       })
+      // Регистрация
+      .addCase(registerUser.pending, (state) => {
+        state.error = '';
+      })
+      .addCase(registerUser.rejected, (state, action) => {
+        state.error = `Ошибка при регистрации: ${action.error.message}`;
+        deleteCookie('accessToken');
+        localStorage.clear();
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.data = action.payload;
+        state.error = '';
+      })
+      // Обновление пользователя
       .addCase(updateUser.fulfilled, (state, action) => {
         state.data = action.payload;
       })
+      // Выход
       .addCase(logoutUser.fulfilled, (state) => {
         state.data = null;
+      })
+      // Проверка авторизации
+      .addCase(checkUserAuth.pending, (state) => {
+        state.isAuthChecked = false;
+        state.error = '';
+      })
+      .addCase(checkUserAuth.fulfilled, (state, action) => {
+        state.isAuthChecked = true;
+        state.data = action.payload; // Автоматически устанавливаем пользователя
+      })
+      .addCase(checkUserAuth.rejected, (state, action) => {
+        state.isAuthChecked = true;
+        state.data = null;
+        state.error = action.error.message || 'Ошибка при проверке авторизации';
+        deleteCookie('accessToken');
+        localStorage.removeItem('refreshToken');
       });
   }
 });
 
-export const { authChecked, setUser } = userSlice.actions;
+export const { setUser } = userSlice.actions;
 export const userReducers = userSlice.reducer;
 export const { userDataSelector, isAuthCheckedSelector, errorSelector } =
   userSlice.selectors;

@@ -17,38 +17,40 @@ import { userDataSelector } from '../../features/userSlice';
 import { useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
-  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
   const dispatch = useDispatch();
   const constructorItems = useSelector(selectConstructorItems);
   const isRegisteredUser = useSelector(userDataSelector) ? true : false;
   const navigate = useNavigate();
 
   const orderRequest: boolean = useSelector(selectOrderRequest);
-
   const orderModalData = useSelector(selectOrderModalData);
-
-  const createDataBurgerForOrder = useMemo(() => {
-    const listIngredientsForOrder = constructorItems.ingredients.map(
-      (ingredient) => ingredient._id
-    );
-    if (constructorItems.bun) {
-      listIngredientsForOrder.unshift(constructorItems.bun._id);
-      listIngredientsForOrder.push(constructorItems.bun._id);
-    }
-    return listIngredientsForOrder;
-  }, [constructorItems]);
 
   const onOrderClick = () => {
     if (!isRegisteredUser) {
       return navigate('/login');
     }
     if (!constructorItems.bun || orderRequest) return;
-    dispatch(orderBurger(createDataBurgerForOrder));
+
+    const ingredientsIds = constructorItems.ingredients.map(
+      (ingredient) => ingredient._id
+    );
+    if (constructorItems.bun) {
+      ingredientsIds.unshift(constructorItems.bun._id);
+      ingredientsIds.push(constructorItems.bun._id);
+    }
+
+    dispatch(orderBurger(ingredientsIds))
+      .unwrap()
+      .then(() => {
+        dispatch(resetConstructorItems());
+      })
+      .catch((error) => {
+        console.error('Ошибка при оформлении заказа:', error);
+      });
   };
 
   const closeOrderModal = () => {
     dispatch(closeModalAfterOrderingBurger());
-    dispatch(resetConstructorItems());
   };
 
   const price = useMemo(

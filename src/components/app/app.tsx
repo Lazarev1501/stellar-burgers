@@ -35,16 +35,16 @@ const App = () => {
   const background = location.state?.background;
   const navigate = useNavigate();
 
-  function getNumberOrder() {
-    if (!location.state?.orderNumber) return;
-
-    const orderNumberFromState = location.state.orderNumber;
-    const number = orderNumberFromState.match(/\d/g)?.length;
-    if (number <= 5) {
-      const orderNumber = `0${orderNumberFromState}`;
-      return orderNumber;
+  const getOrderNumber = (pathname: string): string => {
+    const match = pathname.match(/\/(\d+)$/);
+    if (match) {
+      return match[1].padStart(6, '0');
     }
-  }
+    if (location.state?.orderNumber) {
+      return String(location.state.orderNumber).padStart(6, '0');
+    }
+    return '000000';
+  };
 
   const handleCloseModal = () => navigate(-1);
 
@@ -93,14 +93,7 @@ const App = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-          path='/reset-password'
-          element={
-            <ProtectedRoute>
-              <ResetPassword />
-            </ProtectedRoute>
-          }
-        />
+        <Route path='/reset-password' element={<ResetPassword />} />
         <Route
           path='/profile'
           element={
@@ -129,26 +122,24 @@ const App = () => {
               </Modal>
             }
           />
-        </Routes>
-      )}
-      {background && (
-        <Routes>
           <Route
             path='/feed/:number'
             element={
-              <Modal title={`#${getNumberOrder()}`} onClose={handleCloseModal}>
+              <Modal
+                title={`#${getOrderNumber(location.pathname)}`}
+                onClose={handleCloseModal}
+              >
                 <OrderInfo />
               </Modal>
             }
           />
-        </Routes>
-      )}
-      {background && (
-        <Routes>
           <Route
             path='/profile/orders/:number'
             element={
-              <Modal title={`#${getNumberOrder()}`} onClose={handleCloseModal}>
+              <Modal
+                title={`#${getOrderNumber(location.pathname)}`}
+                onClose={handleCloseModal}
+              >
                 <OrderInfo />
               </Modal>
             }

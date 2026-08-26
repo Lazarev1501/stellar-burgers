@@ -4,23 +4,18 @@ import { TIngredient, TOrder, TUser } from './types';
 const URL =
   process.env.BURGER_API_URL || 'https://norma.nomoreparties.space/api';
 
-// Улучшенная проверка ответа
 const checkResponse = async <T>(res: Response): Promise<T> => {
-  // Получаем текст ответа
   const text = await res.text();
 
-  // Проверяем, не пустой ли ответ
   if (!text || text.trim() === '') {
     throw new Error('Пустой ответ от сервера');
   }
 
-  // Проверяем, не HTML ли это
   if (text.trim().startsWith('<!DOCTYPE') || text.trim().startsWith('<html')) {
     console.error('Сервер вернул HTML:', text.substring(0, 500));
     throw new Error('Сервер недоступен. Проверьте интернет-соединение.');
   }
 
-  // Пытаемся распарсить JSON
   let data: T;
   try {
     data = JSON.parse(text);
@@ -29,7 +24,6 @@ const checkResponse = async <T>(res: Response): Promise<T> => {
     throw new Error('Сервер вернул некорректный ответ');
   }
 
-  // Проверяем успешность ответа
   if (!res.ok) {
     const error = data as any;
     const message = error?.message || `Ошибка ${res.status}: ${res.statusText}`;
@@ -48,7 +42,6 @@ type TRefreshResponse = TServerResponse<{
   accessToken: string;
 }>;
 
-// Обновленный refreshToken с обработкой ошибок
 export const refreshToken = (): Promise<TRefreshResponse> =>
   fetch(`${URL}/auth/token`, {
     method: 'POST',
@@ -70,13 +63,11 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
     })
     .catch((error) => {
       console.error('Ошибка обновления токена:', error);
-      // Очищаем токены при ошибке
       localStorage.removeItem('refreshToken');
       setCookie('accessToken', '', { expires: -1 });
       throw error;
     });
 
-// Обновленный fetchWithRefresh
 export const fetchWithRefresh = async <T>(
   url: RequestInfo,
   options: RequestInit
@@ -86,29 +77,22 @@ export const fetchWithRefresh = async <T>(
     return await checkResponse<T>(res);
   } catch (err) {
     const error = err as Error;
-    // Проверяем, что это ошибка истекшего токена
     if (error.message === 'jwt expired' || error.message.includes('jwt')) {
       try {
         const refreshData = await refreshToken();
-        // Обновляем заголовки с новым токеном
         if (options.headers) {
           (options.headers as { [key: string]: string }).authorization =
             refreshData.accessToken;
         }
-        // Повторяем запрос с новым токеном
         const res = await fetch(url, options);
         return await checkResponse<T>(res);
       } catch (refreshError) {
-        // Если не удалось обновить токен, перенаправляем на логин
-        window.location.href = '/login';
         throw new Error('Сессия истекла. Пожалуйста, войдите заново.');
       }
     }
     throw err;
   }
 };
-
-// Остальные функции с улучшенной обработкой
 
 type TIngredientsResponse = TServerResponse<{
   data: TIngredient[];
@@ -240,9 +224,6 @@ export const registerUserApi = async (data: TRegisterData) => {
     });
     const result = await checkResponse<TAuthResponse>(res);
     if (result?.success) {
-      // Сохраняем токены при успешной регистрации
-      localStorage.setItem('refreshToken', result.refreshToken);
-      setCookie('accessToken', result.accessToken);
       return result;
     }
     throw new Error('Не удалось зарегистрироваться');
@@ -259,7 +240,6 @@ export type TLoginData = {
 
 export const loginUserApi = async (data: TLoginData) => {
   try {
-    console.log('Отправка запроса логина:', `${URL}/auth/login`);
     const res = await fetch(`${URL}/auth/login`, {
       method: 'POST',
       headers: {
@@ -269,12 +249,8 @@ export const loginUserApi = async (data: TLoginData) => {
     });
 
     const result = await checkResponse<TAuthResponse>(res);
-    console.log('Ответ сервера:', result);
 
     if (result?.success) {
-      // Сохраняем токены при успешном входе
-      localStorage.setItem('refreshToken', result.refreshToken);
-      setCookie('accessToken', result.accessToken);
       return result;
     }
     throw new Error('Не удалось войти');
@@ -377,7 +353,6 @@ export const logoutApi = async () => {
     });
     const result = await checkResponse<TServerResponse<{}>>(res);
     if (result?.success) {
-      // Очищаем токены
       localStorage.removeItem('refreshToken');
       setCookie('accessToken', '', { expires: -1 });
       return result;
