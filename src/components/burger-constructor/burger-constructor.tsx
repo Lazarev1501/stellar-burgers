@@ -71,6 +71,9 @@ export const BurgerConstructor: FC = () => {
       orderModalData={orderModalData}
       onOrderClick={onOrderClick}
       closeOrderModal={closeOrderModal}
+      // Добавляем data-testid для конструктора и кнопки заказа
+      constructorTestId='constructor'
+      orderButtonTestId='order-button'
     />
   );
 };
