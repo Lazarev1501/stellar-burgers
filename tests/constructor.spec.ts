@@ -35,10 +35,11 @@ test.describe('Конструктор бургера', () => {
 
   test.describe('Добавление ингредиентов в конструктор', () => {
     test('должен добавлять булку в конструктор', async ({ page }) => {
-      await page.locator('[data-testid="ingredient-bun"]')
+      await page
+        .locator('[data-testid="ingredient-bun"]')
         .first()
         .getByText('Добавить')
-        .click({ force: true }); // ✅ force: true
+        .click({ force: true });
 
       const bunConstructor = page.locator('[data-testid="constructor-bun"]');
       await expect(bunConstructor).toBeVisible();
@@ -46,28 +47,36 @@ test.describe('Конструктор бургера', () => {
     });
 
     test('должен добавлять начинку в конструктор', async ({ page }) => {
-      await page.locator('[data-testid="ingredient-main"]')
+      await page
+        .locator('[data-testid="ingredient-main"]')
         .first()
         .getByText('Добавить')
-        .click({ force: true }); // ✅ force: true
+        .click({ force: true });
 
-      const ingredientConstructor = page.locator('[data-testid="constructor-ingredient"]');
+      const ingredientConstructor = page.locator(
+        '[data-testid="constructor-ingredient"]'
+      );
       await expect(ingredientConstructor).toBeVisible();
       await expect(ingredientConstructor).toContainText('Биокотлета');
     });
 
-    test('должен добавлять несколько ингредиентов в конструктор', async ({ page }) => {
-      await page.locator('[data-testid="ingredient-bun"]')
+    test('должен добавлять несколько ингредиентов в конструктор', async ({
+      page
+    }) => {
+      await page
+        .locator('[data-testid="ingredient-bun"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
 
-      await page.locator('[data-testid="ingredient-main"]')
+      await page
+        .locator('[data-testid="ingredient-main"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
 
-      await page.locator('[data-testid="ingredient-sauce"]')
+      await page
+        .locator('[data-testid="ingredient-sauce"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
@@ -75,7 +84,9 @@ test.describe('Конструктор бургера', () => {
       const bunConstructor = page.locator('[data-testid="constructor-bun"]');
       await expect(bunConstructor).toBeVisible();
 
-      const ingredientsConstructor = page.locator('[data-testid="constructor-ingredient"]');
+      const ingredientsConstructor = page.locator(
+        '[data-testid="constructor-ingredient"]'
+      );
       await expect(ingredientsConstructor).toHaveCount(2);
     });
   });
@@ -89,7 +100,9 @@ test.describe('Конструктор бургера', () => {
       await expect(modal).toContainText('Детали ингредиента');
     });
 
-    test('должен закрывать модальное окно по клику на крестик', async ({ page }) => {
+    test('должен закрывать модальное окно по клику на крестик', async ({
+      page
+    }) => {
       await page.locator('[data-testid="ingredient-main"]').first().click();
       await page.locator('[data-testid="modal-close"]').click();
 
@@ -97,11 +110,13 @@ test.describe('Конструктор бургера', () => {
       await expect(modal).not.toBeVisible();
     });
 
-    test('должен закрывать модальное окно по клику на оверлей', async ({ page }) => {
+    test('должен закрывать модальное окно по клику на оверлей', async ({
+      page
+    }) => {
       await page.locator('[data-testid="ingredient-main"]').first().click();
-      
+
       await expect(page.locator('[data-testid="modal"]')).toBeVisible();
-      
+
       await page.evaluate(() => {
         const overlay = document.querySelector('[data-testid="modal-overlay"]');
         if (overlay) {
@@ -112,7 +127,9 @@ test.describe('Конструктор бургера', () => {
       await expect(page.locator('[data-testid="modal"]')).not.toBeVisible();
     });
 
-    test('должен отображать данные именно того ингредиента, по которому кликнули', async ({ page }) => {
+    test('должен отображать данные именно того ингредиента, по которому кликнули', async ({
+      page
+    }) => {
       await page.locator('[data-testid="ingredient-main"]').first().click();
 
       const modal = page.locator('[data-testid="modal"]');
@@ -122,13 +139,17 @@ test.describe('Конструктор бургера', () => {
   });
 
   test.describe('Создание заказа', () => {
-    test('должен успешно создавать заказ и показывать номер', async ({ page }) => {
-      await page.locator('[data-testid="ingredient-bun"]')
+    test('должен успешно создавать заказ и показывать номер', async ({
+      page
+    }) => {
+      await page
+        .locator('[data-testid="ingredient-bun"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
 
-      await page.locator('[data-testid="ingredient-main"]')
+      await page
+        .locator('[data-testid="ingredient-main"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
@@ -140,13 +161,17 @@ test.describe('Конструктор бургера', () => {
       await expect(orderModal).toContainText('109422');
     });
 
-    test('должен очищать конструктор после создания заказа', async ({ page }) => {
-      await page.locator('[data-testid="ingredient-bun"]')
+    test('должен очищать конструктор после создания заказа', async ({
+      page
+    }) => {
+      await page
+        .locator('[data-testid="ingredient-bun"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
 
-      await page.locator('[data-testid="ingredient-main"]')
+      await page
+        .locator('[data-testid="ingredient-main"]')
         .first()
         .getByText('Добавить')
         .click({ force: true });
@@ -159,7 +184,9 @@ test.describe('Конструктор бургера', () => {
       const bunConstructor = page.locator('[data-testid="constructor-bun"]');
       await expect(bunConstructor).not.toBeVisible();
 
-      const ingredientsConstructor = page.locator('[data-testid="constructor-ingredient"]');
+      const ingredientsConstructor = page.locator(
+        '[data-testid="constructor-ingredient"]'
+      );
       await expect(ingredientsConstructor).toHaveCount(0);
     });
   });

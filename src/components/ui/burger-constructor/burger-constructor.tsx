@@ -17,8 +17,8 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
   orderModalData,
   onOrderClick,
   closeOrderModal,
-  constructorTestId, // Добавляем пропс
-  orderButtonTestId // Добавляем пропс
+  constructorTestId,
+  orderButtonTestId
 }) => (
   <section
     className={styles.burger_constructor}
@@ -53,7 +53,7 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
               index={index}
               totalItems={constructorItems.ingredients.length}
               key={item.id}
-              dataTestId='constructor-ingredient' // Передаем data-testid для каждого ингредиента
+              dataTestId='constructor-ingredient'
             />
           )
         )
@@ -93,7 +93,7 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         size='large'
         children='Оформить заказ'
         onClick={onOrderClick}
-        data-testid={orderButtonTestId} // Добавляем data-testid для кнопки
+        data-testid={orderButtonTestId}
       />
     </div>
 
@@ -108,7 +108,10 @@ export const BurgerConstructorUI: FC<BurgerConstructorUIProps> = ({
         onClose={closeOrderModal}
         title={orderRequest ? 'Оформляем заказ...' : ''}
       >
-        <OrderDetailsUI orderNumber={orderModalData.number} />
+        <OrderDetailsUI
+          orderNumber={orderModalData.number}
+          dataTestId='order-modal'
+        />
       </Modal>
     )}
   </section>
