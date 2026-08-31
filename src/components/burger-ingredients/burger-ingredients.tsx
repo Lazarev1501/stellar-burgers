@@ -76,6 +76,10 @@ export const BurgerIngredients: FC = () => {
       mainsRef={mainsRef}
       saucesRef={saucesRef}
       onTabClick={onTabClick}
+      // Добавляем data-testid для каждого типа ингредиентов
+      bunsTestId='ingredient-bun'
+      mainsTestId='ingredient-main'
+      saucesTestId='ingredient-sauce'
     />
   );
 };

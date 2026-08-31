@@ -17,7 +17,11 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
     bunsRef,
     mainsRef,
     saucesRef,
-    onTabClick
+    onTabClick,
+    // Добавляем новые пропсы
+    bunsTestId,
+    mainsTestId,
+    saucesTestId
   }) => (
     <>
       <section className={styles.burger_ingredients}>
@@ -48,18 +52,21 @@ export const BurgerIngredientsUI: FC<BurgerIngredientsUIProps> = memo(
             titleRef={titleBunRef}
             ingredients={buns}
             ref={bunsRef}
+            dataTestId={bunsTestId} // Передаем data-testid для булок
           />
           <IngredientsCategory
             title='Начинки'
             titleRef={titleMainRef}
             ingredients={mains}
             ref={mainsRef}
+            dataTestId={mainsTestId} // Передаем data-testid для начинок
           />
           <IngredientsCategory
             title='Соусы'
             titleRef={titleSaucesRef}
             ingredients={sauces}
             ref={saucesRef}
+            dataTestId={saucesTestId} // Передаем data-testid для соусов
           />
         </div>
       </section>

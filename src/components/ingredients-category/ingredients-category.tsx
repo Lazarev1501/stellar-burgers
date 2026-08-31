@@ -9,7 +9,7 @@ import { useSelector } from '../../services/store';
 export const IngredientsCategory = forwardRef<
   HTMLUListElement,
   TIngredientsCategoryProps
->(({ title, titleRef, ingredients }, ref) => {
+>(({ title, titleRef, ingredients, dataTestId }, ref) => {
   /** TODO: взять переменную из стора */
   const burgerConstructor = useSelector(selectConstructorItems);
 
@@ -31,6 +31,7 @@ export const IngredientsCategory = forwardRef<
       ingredients={ingredients}
       ingredientsCounters={ingredientsCounters}
       ref={ref}
+      dataTestId={dataTestId} // Передаем data-testid в UI
     />
   );
 });

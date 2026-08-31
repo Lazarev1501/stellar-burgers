@@ -7,4 +7,6 @@ export type BurgerConstructorUIProps = {
   orderModalData: TOrder | null;
   onOrderClick: () => void;
   closeOrderModal: () => void;
+  constructorTestId?: string; // Добавляем опциональный data-testid для конструктора
+  orderButtonTestId?: string; // Добавляем опциональный data-testid для кнопки
 };
